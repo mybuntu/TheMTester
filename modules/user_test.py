@@ -1,5 +1,5 @@
 # # The GUIless Mac Tester   
-# ## by Jules David
+# ## Jules David
 import tkinter as tk
 from tkinter import simpledialog
 import os
