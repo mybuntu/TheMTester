@@ -1,5 +1,5 @@
 # The GUIless Mac Tester
-## by Jules David
+##Jules David
 import os
 import cv2
 import sounddevice as sd
