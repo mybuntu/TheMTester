@@ -1,5 +1,5 @@
 # The GUI Mac Tester   
-## by Jules David
+## Jules David
 
 Structure:
 ---------
