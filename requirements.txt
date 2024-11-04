@@ -1,0 +1,6 @@
+opencv-python
+sounddevice
+numpy
+wavio
+fpdf
+tk
