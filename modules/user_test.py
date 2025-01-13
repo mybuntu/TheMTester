@@ -1,11 +1,14 @@
-# # The GUIless Mac Tester   
-# ## Jules David
-import tkinter as tk
-from tkinter import simpledialog
-import os
+# user_test.py
 
-# LISTE DES QUESTIONS
+import os
+from tkinter import simpledialog
+
+# Fonction principale pour aligner avec la convention des autres modules
 def user_test(output_file):
+    run_user_test(output_file)
+
+# Liste des questions pour le test utilisateur
+def run_user_test(output_file):  # Cette fonction prend l'argument `output_file`
     issues_detected = {}
 
     questions = [
@@ -34,22 +37,20 @@ def user_test(output_file):
     os.system('cls' if os.name == 'nt' else 'clear')
 
     for question in questions:
-        answer = simpledialog.askstring("Test Utilisateur", f"{question}\n([F]onctionnel)/[D]éfectueux/[N]e possède pas): (Enter => [F]onctionnel)")
+        answer = simpledialog.askstring(
+            "Test Utilisateur",
+            f"{question}\n([F]onctionnel)/[D]éfectueux/[N]e possède pas): (Enter => [F]onctionnel) \n [A] Remplacer"
+        )
         if answer and answer.lower() == "d":
             issues_detected[question] = "Défectueux"
         elif answer and answer.lower() == "n":
             issues_detected[question] = "Ne possède pas"
+        elif answer and answer.lower() == "a":
+            issues_detected[question] = "A REMPLACER"
         else:
             issues_detected[question] = "Fonctionnel"
 
     os.system('cls' if os.name == 'nt' else 'clear')
-
-    # Stocker les résultats dans resultats.txt
-    with open(output_file, "a", encoding='utf-8') as file:
-        file.write("=== RÉSULTATS DES TESTS UTILISATEUR ===\n")
-        for question, status in issues_detected.items():
-            file.write(f"{question.split(' au niveau du ')[-1]}: {status}\n")
-        file.write("\n")
 
     # Demander l'état global de l'ordinateur
     etat_options = {
@@ -60,12 +61,24 @@ def user_test(output_file):
         "5": "Usé"
     }
 
-    etat_global = simpledialog.askstring("État Global", "ÉTAT GLOBAL DE L'ORDINATEUR:\n1/ Neuf\n2/ Très bon état\n3/ Bon état\n4/ Correct\n5/ Usé\nSélectionnez une option (1-5): ")
+    etat_global = simpledialog.askstring(
+        "État Global",
+        "ÉTAT GLOBAL DE L'ORDINATEUR:\n1/ Neuf\n2/ Très bon état\n3/ Bon état\n4/ Correct\n5/ Usé\nSélectionnez une option (1-5): "
+    )
     etat_result = etat_options.get(etat_global, "Non spécifié")
 
-    # Ajouter l'état global à la fin du fichier resultats.txt
-    with open(output_file, "a", encoding='utf-8') as file:
-        file.write("=== ÉTAT GLOBAL DE L'ORDINATEUR ===\n")
-        file.write(f"État: {etat_result}\n\n")
+    # Ajouter les résultats dans le fichier de sortie
+    write_results_to_file(output_file, issues_detected, etat_result)
 
     print("État global de l'ordinateur ajouté dans resultats.txt")
+
+
+def write_results_to_file(output_file, issues_detected, etat_result):
+    with open(output_file, "a", encoding='utf-8') as file:
+        file.write("=== RÉSULTATS DES TESTS UTILISATEUR ===\n")
+        for question, status in issues_detected.items():
+            file.write(f"{question.split(' au niveau du ')[-1]}: {status}\n")
+        file.write("\n")
+
+        file.write("=== ÉTAT GLOBAL DE L'ORDINATEUR ===\n")
+        file.write(f"État: {etat_result}\n\n")

@@ -1,11 +1,12 @@
 # The GUIless Mac Tester
-##Jules David
+## Jules David
 import os
 import cv2
 import sounddevice as sd
 import numpy as np
 import wavio
 import tkinter as tk
+from tkinter import simpledialog
 
 RECORD_SECONDS = 2
 SAMPLE_RATE = 44100
@@ -13,22 +14,53 @@ test_results = {}
 
 # Fonction de réponses au rapport de tests
 def ask_confirmation(component):
-    response = input(f"Est-ce que {component} fonctionne ? O/n : ").strip()
-    if response == '' or response.lower() == 'o':
+    # Créer une fenêtre racine temporaire pour le dialogue
+    root = tk.Tk()
+    root.withdraw()  # Masquer la fenêtre principale
+    response = simpledialog.askstring(
+        title="Confirmation",
+        prompt=f"Est-ce que {component} fonctionne ? O/n (taper 'A' ou 'R' Pour 'A REMPLACER': "
+    )
+    root.destroy()  # Détruire la fenêtre racine après utilisation
+    
+    # Interpréter la réponse
+    if response is None or response.strip().lower() in ('', 'o', 'oui'):
         return "Fonctionnel"
-    elif response.lower() == 'n':
+    elif response.strip().lower() in ('n', 'non'):
         return "Défectueux"
+    elif response.strip().lower() in ('a changer', 'a', 'r'):
+        return "A REMPLACER"
     else:
         print("Réponse invalide, par défaut 'Oui' enregistré.")
         return "Fonctionnel"
 
+
 # Test des composants
+# Test devla camera
 def test_camera():
-    cap = cv2.VideoCapture(0)
+    print("Démarrage du test caméra...")
+    
+    # Vérifier les indices de caméra disponibles
+    for i in range(10):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            print(f"Caméra détectée sur l'index {i}")
+            cap.release()
+            camera_index = i
+            break
+    else:
+        print("Aucune caméra détectée.")
+        test_results["Caméra"] = "Défectueux"
+        return
+
+    # Utiliser l'index détecté pour le test
+    cap = cv2.VideoCapture(camera_index)
     if not cap.isOpened():
         print("Erreur : Impossible d'ouvrir la caméra.")
         test_results["Caméra"] = "Défectueux"
         return
+
+    print("Caméra ouverte avec succès.")
     print("Appuyez sur 'q' pour quitter la vidéo.")
     while True:
         ret, frame = cap.read()
@@ -38,6 +70,7 @@ def test_camera():
         cv2.imshow('Test de la caméra', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
     cap.release()
     cv2.destroyWindow('Test de la caméra')
     test_results["Caméra"] = ask_confirmation("la caméra")
